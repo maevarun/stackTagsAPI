@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template
 
 import pickle
+import joblib
 
 import numpy as np
 import pandas as pd
@@ -8,10 +9,13 @@ import pandas as pd
 import Preprocessing.stopwords as sw
 import Preprocessing.tokenAndLemmatiz as tal
 import Preprocessing.cvAndTfIdf as cvtf
-
-app = Flask(__name__)
+# vectorizer = joblib.load("Preprocessing/vectorizer.pkl")
+# vectorizer = pickle.load(open('Preprocessing/vectorizer.pkl', 'rb'))
+vectorizer = pickle.load(open('Preprocessing/vectorizer.pkl', 'rb'))
 
 modelOVR = pickle.load(open('ModelsAPI/model_OVR.pkl', 'rb'))
+
+app = Flask(__name__)
 
 @app.route("/")
 def template():
@@ -23,13 +27,15 @@ def predict_tag():
 
     question = None
 
-    if request_data:
-        if 'question' in request_data:
-            question = request_data['question']
-            question_after = sw.Preprocess_listofSentence(question)
-            # question_vec = cvtf.countVectorizer.transform(question)
-        # prediction = modelOVR.predict(question_vec)
-    return ''' La question est tada : {}'''.format(question_after)
+    if 'question' in request_data:
+        question = request_data['question']
+        preprocess_punct = sw.kill_punctuation(question)
+        question_clean = sw.Preprocess_listofSentence(preprocess_punct)
+        question_list = list(cvtf.sent_to_words(question_clean))
+        question_lemmatized = cvtf.lemmatization(question_list, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+        vecto = vectorizer.transform(question_lemmatized)
+        pred = modelOVR.predict(vecto)
+    return ''' Le tag est taratata: {}'''.format(pred)
 
 @app.route('/query-example')
 def query_example():
