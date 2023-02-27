@@ -9,13 +9,19 @@ import pandas as pd
 import Preprocessing.stopwords as sw
 import Preprocessing.tokenAndLemmatiz as tal
 import Preprocessing.cvAndTfIdf as cvtf
+# vectorizer = joblib.load("Preprocessing/vectorizer.pkl")
+# vectorizer = pickle.load(open('Preprocessing/vectorizer.pkl', 'rb'))
 vectorizer = pickle.load(open('Preprocessing/vectorizer.pkl', 'rb'))
 
 modelOVR = pickle.load(open('ModelsAPI/model_OVR.pkl', 'rb'))
 
 app = Flask(__name__)
 
-@app.route("/", methods=['POST'])
+@app.route("/")
+def template():
+    return "Bienvenue sur le projet : Catégoriser vos questions!"
+
+@app.route("/onevsrest", methods=['POST'])
 def predict_tag():
     request_data = request.get_json()
 
