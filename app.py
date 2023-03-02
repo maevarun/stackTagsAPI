@@ -106,5 +106,3 @@ def form_example():
 #                The boolean value is: {}'''.format(language, framework, python_version, example, boolean_test)
 
 # Désactiver cette fonction au moment de la mise en ligne
-if __name__ == "__main__":
-    app.run(debug=True)
